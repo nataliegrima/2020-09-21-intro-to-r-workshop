@@ -344,6 +344,7 @@ heights[complete.cases(heights)]
 
 # Solution
 median(na.omit(heights))
+median(heights,na.rm=TRUE)
 
 # Use R to figure out how many people in the set are taller than 67 inches.
 heights[(na.omit(heights))>67]
