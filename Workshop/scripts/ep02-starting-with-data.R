@@ -19,8 +19,9 @@ download.file(url = "https://ndownloader.figshare.com/files/2292169",
 surveys <- read.csv("data_raw/portal_data_joined.csv")
 
 # and take a look at it
-
-
+surveys
+head(surveys)
+View(surveys)
 
 # BTW, we assumed our data was comma separated, however this might not
 # always be the case. So we may been to tell read.csv more about our file.
@@ -28,12 +29,18 @@ surveys <- read.csv("data_raw/portal_data_joined.csv")
 
 
 # So what kind of an R object is "surveys" ?
-
-
+class(surveys)
 
 # ok - so what are dataframes ?
-
-
+str(surveys)
+dim(surveys)
+nrow(surveys)
+ncol(surveys)
+head(surveys,2)
+tail(surveys)
+names(surveys)
+rownames(surveys)
+summary(surveys)
 
 # --------
 # Exercise
@@ -42,35 +49,40 @@ surveys <- read.csv("data_raw/portal_data_joined.csv")
 # What is the class of the object surveys?
 #
 # Answer:
-
+class(surveys)    #data.frame
 
 # How many rows and how many columns are in this survey ?
 #
 # Answer:
+nrow(surveys)     #34786
+ncol(surveys)     #13
 
 # What's the average weight of survey animals
 #
 #
 # Answer:
+summary(surveys)    #will be present in the R summary
+mean(surveys$weight, na.rm = TRUE)    #alternate way of pulling the mean from the table
+
 
 # Are there more Birds than Rodents ?
 #
 #
-# Answer:
-
+# Answer: No - again can look to summary
+sum(surveys$taxa == "Rodent")     #alternate
 
 # 
 # Topic: Sub-setting
 #
 
 # first element in the first column of the data frame (as a vector)
-
+surveys[1,1]
 
 # first element in the 6th column (as a vector)
-
+surveys[1,6]
 
 # first column of the data frame (as a vector)
-
+surveys[,6]
 
 # first column of the data frame (as a data frame)
 
