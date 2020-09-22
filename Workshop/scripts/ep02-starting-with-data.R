@@ -85,26 +85,31 @@ surveys[1,6]
 surveys[,6]
 
 # first column of the data frame (as a data frame)
-
+surveys[1]
+head(surveys[1])
+head(surveys[,1])
 
 # first row (as a data frame)
-
+surveys[1,]
 
 # first three elements in the 7th column (as a vector)
-
+surveys[1:3,7]
 
 # the 3rd row of the data frame (as a data.frame)
+surveys[3,]
 
-
-# equivalent to head(metadata)
-
+# equivalent to head(surveys)
+surveys[1:6,]
 
 # looking at the 1:6 more closely
-
+1:6
+5:10
+surveys[c(1,2,3,5,6),]     #can pull specific rows
+surveys[,c(2,3)]           #or columns
 
 # we also use other objects to specify the range
-
-
+rows <- 6
+surveys[1:rows,3]    #sames as surveys[1:6,3]
 
 #
 # Challenge: Using slicing, see if you can produce the same result as:
@@ -114,30 +119,49 @@ surveys[,6]
 # i.e., print just last 6 rows of the surveys dataframe
 #
 # Solution:
-
-
+nrow(surveys)
+surveys[34781:34786,]
+surveys[(nrow(surveys)-5):nrow(surveys),]   #alternate way if you don't want to count rows 
 
 # We can omit (leave out) columns using '-'
-
-
+surveys[-1]
+surveys[c(-1,-2,-3)]
+head(surveys[-(1:3)])
 
 # column "names" can be used in place of the column numbers
-
+head(surveys["month"])
 
 
 #
 # Topic: Factors (for categorical data)
 #
+gender <- c("male","male","female")           #storing a vector of characters
+gender <- factor(c("male","male","female"))   #better way is to store as a vector of factors
 
+class(gender)
+levels(gender)
+nlevels(gender)
 
 # factors have an order
+temperature <- factor(c("hot","cold","hot","warm"))
+temperature[1]
+levels(temperature)
 
+# will be ordered alphabetically unless level order is pre-stated which you can do as described below
+
+temperature <- factor (c("hot","cold","hot","warm"), level = c("cold","warm","hot"))
+levels(temperature)
 
 # Converting factors
-
+as.numeric(temperature)
+as.character(temperature)
 
 # can be tricky if the levels are numbers
-
+year <- factor ( c(1990, 1983, 1977, 1998, 1990))
+year
+as.numeric(year)
+as.character(year)
+as.numeric (as.character(year))    #converting it back into a useful format
 
 # so does our survey data have any factors
 
