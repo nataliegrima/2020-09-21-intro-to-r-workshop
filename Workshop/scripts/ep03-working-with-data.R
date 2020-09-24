@@ -221,7 +221,7 @@ surveys_new %>%
 
 # 1. How many animals were caught in each ```plot_type``` surveyed?
 
-surveys %>% 
+number of animals <- surveys %>% 
   group_by(plot_type) %>% 
   summarise(number_of_animals = n())
 
@@ -229,7 +229,7 @@ surveys %>%
 #    for each species (using ```species_id```). Also add the number of observations 
 #    (hint: see ```?n```).
 
-surveys %>% 
+hindfoot_length <- surveys %>% 
   filter(!is.na(hindfoot_length)) %>% 
   group_by(species_id) %>% 
   summarise(mean_length = mean(hindfoot_length),
@@ -240,7 +240,7 @@ surveys %>%
 # 3. What was the heaviest animal measured in each year? 
 #    Return the columns ```year```, ```genus```, ```species_id```, and ```weight```.
 
-surveys %>% 
+test_1<- surveys %>% 
   group_by(year) %>% 
   select(year, genus, species_id, weight) %>% 
   mutate(max_weight = max(weight, na.rm = TRUE))
@@ -249,22 +249,52 @@ surveys %>%
 # Summarise() will result in loss of the other selected variables while mutate will just add an
 # additional column to sort by. 
 
-surveys %>% 
+# Alternate way
+
+test_2 <- surveys %>% 
   filter(!is.na(weight)) %>% 
   group_by(year) %>% 
   filter(weight == max(weight)) %>% 
   select(year, genus, species, weight) %>% 
   arrange(year)
 
+# Best alternate
+test_3 <-surveys %>% 
+  filter(!is.na(weight)) %>% 
+  group_by(year) %>% 
+  filter(weight == max(weight)) %>% 
+  select(year, genus, species, weight) %>% 
+  arrange(year) %>% 
+  distinct()
 
 #-----------
 # Reshaping
 #-----------
 
+# pivot_wider() / spread() function:
+# "Key" becomes the new column titles while "Value" becomes the values within the table 
+# Note: that different terms are used by the updated pivot series
+
+surveys_gw <- surveys %>% 
+  filter(!is.na(weight)) %>% 
+  group_by(plot_id, genus) %>% 
+  summarise(mean_weight = mean (weight))
+
+surveys_wider <- surveys_gw %>% 
+  spread(key = genus, value = mean_weight)
+
+str(surveys_wider)
+View(surveys_wider)
 
 
+#pivot_longer() / gather() function:
+surveys_gather <- surveys_wider %>% 
+  gather(key = genus, value = mean_weight, -plot_id)
 
+View(surveys_gather)
 
+surveys_gather2 <- surveys_wider %>% 
+  gather(key = genus, value = mean_weight, Baiomys:Spermophilus)
 
 
 #-----------
@@ -275,6 +305,20 @@ surveys %>%
 #    and the number of genera per plot as the values. You will need to summarize before reshaping, 
 #    and use the function n_distinct() to get the number of unique genera within a particular chunk of data. 
 #    It’s a powerful function! See ?n_distinct for more.
+
+summary(surveys)
+
+surveys_year <- surveys %>% 
+  group_by(year, plot_id) %>% 
+  summarise(number_of_genera = count(genera))
+
+surveys_wider <- surveys_gw %>% 
+  spread(key = genus, value = mean_weight)
+
+str(surveys_wider)
+View(surveys_wider)
+
+
 
 # 2. Now take that data frame and pivot_longer() it again, so each row is a unique plot_id by year combination.
 
