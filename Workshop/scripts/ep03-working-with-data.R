@@ -308,19 +308,19 @@ surveys_gather2 <- surveys_wider %>%
 
 summary(surveys)
 
-surveys_year <- surveys %>% 
+surveys_genera_spread <- surveys %>% 
   group_by(year, plot_id) %>% 
-  summarise(number_of_genera = count(genera))
+  summarise(number_of_genera = n_distinct(genus)) %>% 
+  spread(key = year, value = number_of_genera)
 
-surveys_wider <- surveys_gw %>% 
-  spread(key = genus, value = mean_weight)
-
-str(surveys_wider)
-View(surveys_wider)
-
-
+View(surveys_genera_spread)
 
 # 2. Now take that data frame and pivot_longer() it again, so each row is a unique plot_id by year combination.
+
+surveys_genera_gather <- surveys_genera_spread %>% 
+  gather(key = year, value = number_of_genera, -plot_id)
+
+head(surveys_genera_gather)
 
 # 3. The surveys data set has two measurement columns: hindfoot_length and weight. 
 #    This makes it difficult to do things like look at the relationship between mean values of each 
@@ -329,26 +329,27 @@ View(surveys_wider)
 #    takes on the value of either hindfoot_length or weight. 
 #    Hint: You’ll need to specify which columns are being pivoted.
 
+surveys_long <- surveys %>% 
+  gather("measurement", "value", hindfoot_length, weight)
+
+head(surveys_long)
+
 # 4. With this new data set, calculate the average of each measurement in each year for each different plot_type. 
 #    Then pivot_wider() them into a data set with a column for hindfoot_length and weight. 
 #    Hint: You only need to specify the key and value columns for pivot_wider().
 
+surveys_long2 <- surveys_long %>% 
+  group_by(year, measurement, plot_type) %>% 
+  summarise(mean_value = mean(measurement, na.rm = TRUE)) %>% 
+  spread(measurement, mean_value)
 
-
+head(surveys_long2)
+tail(surveys_long2)
 
 
 #----------------
 # Exporting data
 #----------------
 
-
-
-
-
-
-
-
-
-
-
+write_csv(surveys_long2, path = "data_out/surveys_long2.csv")
 
