@@ -138,10 +138,82 @@ View(hindfoot_subset)
 # Split-apply-combine
 #---------------------
 
+# group_by() and summarise() functions:
+# summarising mean weight by sex
+# need to remove NAs in order for mean to be calculated
+
+surveys %>% 
+  group_by(sex) %>% 
+  summarise(mean_weight = mean(weight, na.rm = TRUE))
+
+# summary is base function that summarises dataset. Summarise will summarise selected fields for you.
+summary(surveys)
 
 
+# NOTE: if you have multiple packages loaded they can sometimes conflict
+# to get around this use "::" following the desired package name - e.g. dplyr::group_by(sex)
 
 
+# sex was listed as character which stuffs up summary
+# to correct to a factor use the following... 
+
+surveys$sex <- as.factor(surveys$sex)
+class(surveys$sex)
+
+# another way of removing NAs at the start
+surveys %>% 
+  filter(!is.na(weight), !is.na(sex)) %>% 
+  group_by(sex, species_id) %>% 
+  summarise(mean_weight = mean(weight)) %>% 
+  print(n = 20)        # another way of doing head(20) or tail(20) 
+
+?summarise    # works in console only
+
+
+# arrange() function:
+# arranging data from minimum to maximum value of one of the summarised columns
+
+surveys %>% 
+  filter(!is.na(weight), !is.na(sex)) %>% 
+  group_by(sex, species_id) %>% 
+  summarise(mean_weight = mean(weight),
+            min_weight = min(weight)) %>% 
+  arrange(min_weight)
+
+?arrange
+
+# arranging data from maximum to minimum value (default is minimum to maximum)
+# can also use arrange(-min_weight) in place of desc() function
+
+surveys %>% 
+  filter(!is.na(weight), !is.na(sex)) %>% 
+  group_by(sex, species_id) %>% 
+  summarise(mean_weight = mean(weight),
+            min_weight = min(weight)) %>% 
+  arrange(desc(min_weight))
+
+
+# count() function:
+
+surveys %>% 
+  count(sex)
+
+# another way of using this function to get the same result
+surveys %>% 
+  group_by(sex) %>% 
+  summarise(count = n())
+
+# When using group_by you may want to group by a second variable further down in the pipeline
+# but not continue to group by the first variable (e.g. sex). 
+# You can use ungroup() to 
+
+surveys_new <- surveys %>% 
+  group_by(sex, species, taxa) %>% 
+  summarise(count = n()) %>% 
+  ungroup()     # only if you want to ungroup
+
+surveys_new %>% 
+  summarise(mean_weight = mean(weight))
 
 #-----------
 # CHALLENGE
@@ -149,15 +221,40 @@ View(hindfoot_subset)
 
 # 1. How many animals were caught in each ```plot_type``` surveyed?
 
+surveys %>% 
+  group_by(plot_type) %>% 
+  summarise(number_of_animals = n())
+
 # 2. Use ```group_by()``` and ```summarize()``` to find the mean, min, and max hindfoot length 
 #    for each species (using ```species_id```). Also add the number of observations 
 #    (hint: see ```?n```).
 
+surveys %>% 
+  filter(!is.na(hindfoot_length)) %>% 
+  group_by(species_id) %>% 
+  summarise(mean_length = mean(hindfoot_length),
+            min_length = min(hindfoot_length), 
+            count = n())
+  
+
 # 3. What was the heaviest animal measured in each year? 
 #    Return the columns ```year```, ```genus```, ```species_id```, and ```weight```.
 
+surveys %>% 
+  group_by(year) %>% 
+  select(year, genus, species_id, weight) %>% 
+  mutate(max_weight = max(weight, na.rm = TRUE))
+  
+# In this example it is more appropriate to use mutate() instead of summarise(). 
+# Summarise() will result in loss of the other selected variables while mutate will just add an
+# additional column to sort by. 
 
-
+surveys %>% 
+  filter(!is.na(weight)) %>% 
+  group_by(year) %>% 
+  filter(weight == max(weight)) %>% 
+  select(year, genus, species, weight) %>% 
+  arrange(year)
 
 
 #-----------
