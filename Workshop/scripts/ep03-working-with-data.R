@@ -32,29 +32,48 @@ download.file(url = "https://ndownloader.figshare.com/files/2292169",
 # Lets get started!
 #------------------
 
+# loadinging dplyr and tidyr
+install.packages("tidyverse")
+library(tidyverse)
 
+# loading the dataset
+surveys <- read_csv("data_raw/portal_data_joined.csv")
 
-
+# check structure
+str(surveys)
 
 
 #-----------------------------------
 # Selecting columns & filtering rows
 #-----------------------------------
+select(surveys, plot_id, species_id, weight)
 
+select(surveys, -record_id, -species_id)
 
+# Filter for a particular year 
+surveys_1995 <- filter(surveys, year == 1995)
 
+surveys2 <- filter(surveys, weight < 5)
+surveys_sml <- select(surveys2, species_id, sex, weight)
 
-
-
+surveys_sml <- select(filter(surveys, weight < 5), species_id, sex, weight)
 
 #-------
 # Pipes
 #-------
 
+# The pipe --> %>%
+# Shortcut --. Ctrl + shift + m or command + shift + m
 
+surveys %>%
+  filter(weight<5) %>%
+  select(species_id, sex, weight)
 
+surveys_sml2 <- surveys %>%
+  filter(weight < 5) %>%
+  select(species_id, sex, weight)
 
-
+View(surveys_sml2)
 
 #-----------
 # CHALLENGE
@@ -63,33 +82,57 @@ download.file(url = "https://ndownloader.figshare.com/files/2292169",
 # Using pipes, subset the ```surveys``` data to include animals collected before 1995 and 
 # retain only the columns ```year```, ```sex```, and ```weight```.
 
+surveys_1995 <- surveys %>% 
+  filter(year < 1995) %>% 
+  select(year, sex, weight)
 
+View(surveys_1995)
 
-
+# When dealing with larger datasets it will likely be quicker to perform select before filter
+# Order of column titles in select function determines data frame order
 
 #--------
 # Mutate
 #--------
+# Handy if you want to convert one column to another without overwritting the original column
+# e.g. conversion of lbs to kgs
 
+surveys %>% 
+  mutate(weight_kg = weight/1000)
 
+#can generate multiple new columns in the one function 
 
+surveys %>%
+  mutate(weight_kg = weight/1000,
+         weight_lb = weight_kg *2.2) %>% 
+  head()
 
+surveys %>% 
+  filter(!is.na(weight)) %>% 
+  mutate(weight_kg = weight / 1000) %>% 
+  head(20)
 
+#if you want to remove blanks could use: filer(weight !="")
+#removing NA and blanks: filter(weight !="" | !is.na(weight))
 
 #-----------
 # CHALLENGE
 #-----------
 
 # Create a new data frame from the ```surveys``` data that meets the following criteria: 
-# contains only the ```species_id``` column and a new column called ```hindfoot_cm``` containing 
+# 1. contains only the ```species_id``` column and a new column called ```hindfoot_cm``` containing 
 # the ```hindfoot_length``` values converted to centimeters. In this hindfoot_cm column, 
 # there are no ```NA```s and all values are less than 3.
 
 # Hint: think about how the commands should be ordered to produce this data frame!
 
+hindfoot_subset <- surveys %>% 
+  filter(!is.na(hindfoot_length)) %>% 
+  mutate(hindfoot_cm = hindfoot_length/10) %>% 
+  select(species_id, hindfoot_cm) %>% 
+  filter(hindfoot_cm < 3)
 
-
-
+View(hindfoot_subset)
 
 #---------------------
 # Split-apply-combine
