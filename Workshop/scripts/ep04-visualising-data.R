@@ -148,12 +148,67 @@ ggplot(data = surveys_complete, mapping = aes(x = species_id, y = weight)) +
   geom_jitter(alpha = 0.3, aes(colour = as.factor(plot_id))) +
   scale_y_continuous(trans = 'log10')
 
+
+
+# PLOTTING TIME SERIES DATA
+
+# plotting counts per genus for each year as a line graph 
+yearly_counts <- surveys_complete %>% 
+  count(year, genus)
+
+ggplot(data=yearly_counts, mapping = aes(x= year, y=n, group=genus)) +
+  geom_line()
+
 # Challenge 8
 # Modify the code for the yearly counts to colour by genus so we can clearly see the counts by genus.
+ggplot(data = yearly_counts, mapping = aes(x = year, y = n, colour = genus)) +
+         geom_line()
 
-ggplot(data = surveys_complete, mapping = aes(x = genus, y = year, colour = genus)) +
-         geom_jitter()
+# note that the colour function will automatically group by genus for you
 
+
+
+# INTEGRATING THE PIPE OPERATOR WITH GGPLOT
+
+# by using pipes you no longer need to add the data argument into the ggplot function 
+yearly_counts %>% 
+  ggplot(mapping = aes(x = year, y = n, colour = genus)) +
+  geom_line()
+
+# you can go one step further and combine all these steps into one by piping twice
+yearly_counts_graph <- surveys_complete %>% 
+  count(year, genus) %>% 
+  ggplot(mapping = aes(x = year, y = n, colour = genus)) +
+  geom_line()
+
+
+
+# FACETING
+
+# making a panel of graphs to better visualise our data
+ggplot(data = yearly_counts, mapping = aes(x = year, y = n)) +
+  geom_line() + 
+  facet_wrap(facet = vars(genus))
+
+# alternate method
+ggplot(data = yearly_counts, mapping = aes(x = year, y = n)) +
+  geom_line() + 
+  facet_wrap(~genus)
+
+# adding sex as another variable
+yearly_sex_counts <- surveys_complete %>% 
+  count(year, genus, sex) %>% 
+  ggplot(mapping= aes(x = year, y = n, colour = sex)) + 
+  geom_line() +
+  facet_wrap(facet = vars(genus))
+
+yearly_sex_counts
+
+# faceting sex
+yearly_sex_counts %>% 
+  ggplot(mapping= aes(x = year, y = n, colour = sex)) + 
+  geom_line() +
+  facet_grid(rows = vars(sex), cols  = vars(genus))
 
 # Challenge 9
 # How would you modify this code so the faceting is organised into only columns instead of only rows?
