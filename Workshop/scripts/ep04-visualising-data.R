@@ -197,24 +197,96 @@ ggplot(data = yearly_counts, mapping = aes(x = year, y = n)) +
 
 # adding sex as another variable
 yearly_sex_counts <- surveys_complete %>% 
-  count(year, genus, sex) %>% 
-  ggplot(mapping= aes(x = year, y = n, colour = sex)) + 
+  count(year, genus, sex)
+  
+ggplot(data = yearly_sex_counts, mapping= aes(x = year, y = n, colour = sex)) + 
   geom_line() +
   facet_wrap(facet = vars(genus))
 
-yearly_sex_counts
-
-# faceting sex
+# faceting sex 
 yearly_sex_counts %>% 
   ggplot(mapping= aes(x = year, y = n, colour = sex)) + 
   geom_line() +
   facet_grid(rows = vars(sex), cols  = vars(genus))
 
+
 # Challenge 9
 # How would you modify this code so the faceting is organised into only columns instead of only rows?
-  
+yearly_sex_counts %>% 
+  ggplot(mapping= aes(x = year, y = n, colour = sex)) + 
+  geom_line() +
+  facet_grid(cols = vars(genus))  
+
+
+
+# THEMES
+
+# Themes can change the background of your graph e.g. theme_bw
+ggplot(data = yearly_sex_counts, mapping = aes(x = year, y = n, colour = sex)) +
+  geom_line() +
+  facet_wrap(~genus) +
+  theme_bw()
+
+# There are a bunch of themes available which you can find by web search
+# https://ggplot2.tidyverse.org/reference/ggtheme.html
+
+
 # Challenge 10
 # Put together what you’ve learned to create a plot that depicts how the average weight of each 
 # species changes through the years.
 # Hint: need to do a group_by() and summarize() to get the data before plotting
+yearly_weight <- surveys_complete %>% 
+  group_by(year, species_id) %>% 
+  summarise(mean_weight = mean(weight))
 
+ View(yearly_weight)           
+
+ yearly_weight %>% 
+   ggplot(mapping = aes(x = year, y = mean_weight)) +
+   geom_line() +
+   facet_wrap(~species_id) +
+   theme_minimal()
+ 
+ 
+ 
+ # CUSTOMISATION 
+ 
+ # Adding labels (labs), altering text (theme)
+ yearly_sex_counts %>% 
+   ggplot(mapping = aes(x = year, y = n, colour = sex)) +
+   geom_line() +
+   facet_wrap(~genus) +
+   labs(title = "Observed genera through time", x = "Year", y = "Number of individuals") + 
+   theme_bw() +
+   theme(text = element_text(size = 16), 
+         axis.text.x = element_text(colour = "grey20", size = 12, angle = 90, hjust = 0.5, vjust = 0.5),
+         axis.text.y = element_text(colour = "grey20", size = 12),
+         strip.text = element_text(face = "italic"))
+
+ # note strip.text only works when data is facetted 
+ 
+ # You can also save themes you have made as objects (will comeup as list)
+ 
+ grey_theme <-  theme(text = element_text(size = 16), 
+                      axis.text.x = element_text(colour = "grey20", size = 12, angle = 90, hjust = 0.5, vjust = 0.5),
+                      axis.text.y = element_text(colour = "grey20", size = 12),
+                      strip.text = element_text(face = "italic"))
+
+ yearly_sex_counts %>% 
+   ggplot(mapping = aes(x = year, y = n, colour = sex)) +
+   geom_line() +
+   facet_wrap(~genus) +
+   theme_bw() +
+   grey_theme
+
+ 
+ 
+ # EXPORTING PLOTS
+ # Do not use export button in plots tab as this will export a low res image 
+ # Instead use ggsave()
+ # If you don't specify which object it will save the last plot you created
+ # You specify the file type by altering the extension e.g. .pdf, .png)
+ 
+ ggsave("figures/plot_A.png", width = 15, height = 10, dpi = 600)
+ 
+ 
